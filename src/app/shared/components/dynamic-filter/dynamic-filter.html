@@ -1,0 +1,99 @@
+<div class="filter-box">
+
+  <!-- HEADER (Accordion Toggle) -->
+  <div class="filter-header" (click)="toggleExpand()">
+
+    <label>{{ filter.columnName }}</label>
+
+    <span class="arrow">
+      {{ isExpanded ? '▲' : '▼' }}
+    </span>
+
+  </div>
+
+  <!-- CONTENT (ONE SINGLE BLOCK ONLY) -->
+  <div class="filter-content" [class.collapsed]="!isExpanded">
+
+    <!-- ACTION BUTTONS -->
+    <div class="filter-actions">
+
+      <button class="delete-btn" (click)="removeFilter()">
+        ✕
+      </button>
+
+      <button class="reset-btn" (click)="resetFilter()">
+        ↺
+      </button>
+
+    </div>
+
+    <!-- ================= DEFAULT ================= -->
+    @if (isDefault()) {
+      <input
+        type="text"
+        placeholder="Enter value"
+        [(ngModel)]="textValue"
+        [disabled]="isDefaultLocked"
+      />
+
+      <button
+        class="submit-btn"
+        [disabled]="!textValue || isDefaultLocked"
+        (click)="submitDefault()">
+        Submit
+      </button>
+    }
+
+    <!-- ================= VALUE RANGE ================= -->
+    @if (isValueRange()) {
+
+      <input
+        type="number"
+        placeholder="Min"
+        [(ngModel)]="minValue"
+        [disabled]="isRangeLocked"
+      />
+
+      <input
+        type="number"
+        placeholder="Max"
+        [(ngModel)]="maxValue"
+        [disabled]="isRangeLocked"
+      />
+
+      <button class="submit-btn"
+              [disabled]="isRangeLocked"
+              (click)="submitRange()">
+        Submit
+      </button>
+
+    }
+
+    <!-- ================= DATE ================= -->
+    @if (isDate()) {
+
+      <input type="date"
+             [(ngModel)]="minDate"
+             (change)="onDateChange()"
+             [disabled]="isDateLocked" />
+
+    }
+
+    <!-- ================= SINGLE SELECT ================= -->
+@if (isSingleSelect()) {
+
+  <select
+    [(ngModel)]="selectedSingleValue"
+    (change)="onSelectChange($event)"
+  >
+
+    @for (opt of optionsFromApi; track $index) {
+      <option [value]="opt">{{ opt }}</option>
+    }
+
+  </select>
+
+}
+
+  </div>
+</div>

@@ -1,0 +1,209 @@
+
+.filter-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+  .filter-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+  }
+
+  /* ================= LABEL ================= */
+  .filter-box label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    letter-spacing: 0.2px;
+  }
+
+  /* ================= TYPE TEXT ================= */
+  .filter-box small {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: -6px;
+  }
+
+  /* ================= INPUTS ================= */
+  .filter-box input,
+  .filter-box select {
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    font-size: 14px;
+    color: #111827;
+
+    background: #f9fafb;
+
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  /* focus effect */
+  .filter-box input:focus,
+  .filter-box select:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  /* ================= RANGE INPUTS ================= */
+  .filter-box input[type="number"] {
+    appearance: textfield;
+  }
+
+  .filter-box input[type="number"]::-webkit-outer-spin-button,
+  .filter-box input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ================= DATE INPUT ================= */
+  .filter-box input[type="date"] {
+    cursor: pointer;
+  }
+
+  /* ================= SELECT ================= */
+  .filter-box select {
+    cursor: pointer;
+  }
+
+  /* ================= LOADING OPTION ================= */
+  .filter-box option {
+    font-size: 13px;
+  }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 768px) {
+    .filter-box {
+      padding: 12px;
+    }
+
+    .filter-box input,
+    .filter-box select {
+      font-size: 13px;
+    }
+  }
+  .submit-btn {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 8px;
+
+    background: linear-gradient(135deg, #00c9a7, #00b4d8);
+    color: white;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 15px rgba(0, 201, 167, 0.2);
+  }
+
+  /* hover effect */
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 201, 167, 0.3);
+  }
+
+  /* click effect */
+  .submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0, 201, 167, 0.2);
+  }
+
+  /* disabled state */
+  .submit-btn:disabled {
+    background: #cfd8dc;
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .delete-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+
+    width: 22px;
+    height: 22px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #ff4d4f;
+    color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: 0.2s ease;
+  }
+
+  .delete-btn:hover {
+    background: #d9363e;
+    transform: scale(1.1);
+  }
+  .reset-btn {
+    width: 22px;
+    height: 22px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #1890ff;
+    color: white;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reset-btn:hover {
+    background: #0f6fd1;
+  }
+ .filter-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+  background: #f5f5f5;
+  font-weight: bold;
+}
+  .arrow {
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* Smooth collapse */
+ .filter-content {
+  padding: 10px;
+  transition: all 0.2s ease;
+}
+
+
+.filter-content.collapsed {
+  display: none;
+}
+.arrow {
+  font-size: 12px;
+}

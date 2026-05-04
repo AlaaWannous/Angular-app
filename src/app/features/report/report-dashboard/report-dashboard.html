@@ -1,0 +1,249 @@
+    <div class="dashboard">
+
+      <!-- ================= BOX 1 ================= -->
+      <div class="box">
+        <h2>Report Tabs</h2>
+
+        @if (tabs$ | async; as tabs) {
+
+          @for (tab of tabs; track tab.id) {
+
+            <div class="tab-group">
+
+              <div class="tab-title">
+                {{ tab.name }}
+              </div>
+
+              <div class="sub-tabs">
+
+                @for (sub of tab.subReports; track sub.id) {
+
+                  <div
+                    class="sub-tab"
+                  (click)="onSubReportClick(sub.id)"
+                  >
+                    {{ sub.name }}
+                  </div>
+
+                }
+
+              </div>
+
+            </div>
+
+          }
+
+        } 
+
+      </div>
+
+      <!-- ================= BOX 2 ================= -->
+    <!-- @if (filters$ | async; as filters) {
+
+      <div class="box columns"
+          cdkDropList
+          id="sourceList"
+          [cdkDropListData]="filters"
+          [cdkDropListConnectedTo]="['targetList', 'groupList']">
+
+        <h3>Columns</h3>
+  <div class="columns-container scroll-box">
+        @if (loadingFilters) {
+          <div class="loading-overlay">Loading...</div>
+        }
+
+        @if (filters.length === 0) {
+          <div>No columns</div>
+        }
+
+        @for (f of filters; track f.id) {
+          <div class="column-item" cdkDrag [cdkDragData]="f">
+            {{ f.columnName }}
+          </div>
+        }
+  </div>
+      </div>
+
+    } -->
+  @if (filters$ | async; as filters) {
+
+    <div class="box columns"
+        cdkDropList
+        id="sourceList"
+        [cdkDropListData]="filters"
+        [cdkDropListConnectedTo]="['targetList', 'groupList']">
+
+      <h3>Columns</h3>
+
+      @if (loadingFilters) {
+        <div class="loading-overlay">Loading...</div>
+      }
+
+      @if (filters.length === 0) {
+        <div>No columns</div>
+      }
+
+      @for (f of filters; track f.id) {
+        <div class="column-item" cdkDrag [cdkDragData]="f">
+          {{ f.columnName }}
+        </div>
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="box columns">
+      <h3>Columns</h3>
+
+      @if (!selectedSubReportId) {
+        <div class="empty">Select a Sub Report first</div>
+      } @else {
+        <div class="empty">Loading...</div>
+      }
+
+    </div>
+
+  }
+      <!-- ================= BOX 3 ================= -->
+      <div
+        class="box scroll-box"
+        cdkDropList
+        id="targetList"
+        [cdkDropListData]="selectedFilters"
+        [cdkDropListConnectedTo]="['sourceList', 'groupList']"
+        (cdkDropListDropped)="drop($event)"
+        
+        
+      >
+
+        <h3>Filters</h3>
+      <div class="filters-container">
+        @if (selectedFilters.length === 0) {
+          <div class="empty">Drag items here</div>
+        } @else {
+
+          @for (f of selectedFilters; track f.id) {
+
+            <div class="filter-wrapper">
+
+                <app-dynamic-filter
+                  [filter]="f"
+                  [queryId]="selectedSubReportId"
+      (valueChange)="onFilterSubmit($event)"
+                  (remove)="onRemoveFilter($event)"
+                  (reset)="onResetFilter($event)">
+                </app-dynamic-filter>
+
+            </div>
+
+          }
+
+        }
+
+      </div>
+      </div>
+      <!-- ================= BOX 4 (GROUPING) ================= -->
+      <div
+        class="box grouping"
+        cdkDropList
+        id="groupList"
+        
+        [cdkDropListData]="groupingFields"
+        [cdkDropListConnectedTo]="['sourceList', 'targetList']"
+        (cdkDropListDropped)="onGroupingDrop($event)"
+      >
+
+        <h3>Grouping</h3>
+  <div class="grouping-container scroll-box">
+        @if (groupingFields.length === 0) {
+          <div class="empty">Drag fields here to group</div>
+        } @else {
+
+          @for (g of groupingFields; track g.id) {
+
+            <div class="group-item">
+              {{ g.columnName }}
+            </div>
+
+          }
+
+        }
+  </div>
+      </div>
+      
+
+      <div class="send-wrapper">
+        <button class="send-btn" (click)="sendFilters()">
+          Get Data
+        </button>
+              <button class="send-btn export-btn" (click)="exportToExcel()">
+      Export to Excel
+    </button>
+      </div>
+      
+    <!-- ================= BOX 5 (ROW DATA) ================= -->
+    <div class="box rowdata">
+
+      <h3>Row Data</h3>
+
+      <div class="row-item-container">
+
+        @if (data$ | async; as data) {
+
+          @if (!data?.rawData || data.rawData.length === 0) {
+            <div class="empty">No data</div>
+          }
+
+          @else {
+
+            <!-- HEADER -->
+            <div class="table-header">
+              <div class="table-row">
+          @for (item of getRowEntries(data.rawData[0]); track $index) {
+    <div class="th sortable" (click)="sortTable(item[0])">
+
+      {{ item[0] }}
+
+      @if (sortedColumn === item[0]) {
+        <span>
+          {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+        </span>
+      }
+
+    </div>
+  }
+              </div>
+            </div>
+
+            <!-- ROWS -->
+            @for (row of data.rawData; track $index) {
+              <div class="table-row">
+                @for (item of getRowEntries(row); track $index) {
+                  <div class="td">
+                    {{ item[1] }}
+                  </div>
+                }
+              </div>
+            }
+
+          }
+
+        }
+
+      </div>
+
+    </div>
+    </div>
+
+
+    <div class="pagination">
+
+      <button (click)="prevPage()">⬅ Prev</button>
+
+      <span>Page: {{ pagination.pageNumber }}</span>
+
+      <button (click)="nextPage()">Next ➡</button>
+
+    </div>
+
