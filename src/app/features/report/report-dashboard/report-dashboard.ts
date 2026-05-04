@@ -4,7 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { ReportService } from '../../../core/services/report';
 import { ReportDto } from '../../../models/report.models';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { DynamicFilter, FilterSelectionObject } from '../../../shared/components/dynamic-filter/dynamic-filter';
+import { DynamicFilter } from '../../../shared/components/dynamic-filter/dynamic-filter';
 import { FilterDefinition } from '../../../models/filter.models';
 import { ReportDataRequest } from '../../../models/report-request.models';
 import { FilterSelection } from '../../../models/filter.models';
@@ -15,6 +15,7 @@ import { BehaviorSubject, switchMap } from 'rxjs';
 import { of } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { FilterSelectionModel } from '../../../models/filter-selection.model';
 
 @Component({
   selector: 'app-report-dashboard',
@@ -129,14 +130,14 @@ drop(event: CdkDragDrop<FilterDefinition[]>) {
   }
 }
 
-onFilterChange(filter: FilterSelectionObject) {
+onFilterChange(filter: FilterSelectionModel) {
 
  const mapped: FilterSelection = {
   id: filter.id,
   columnName: filter.columnName,
-  type: EnFilterType.DEFAULT, 
-  value: filter.value,
-  role: FilterRole.WHERE 
+   type: filter.type,
+    value: filter.value,
+    role: FilterRole.WHERE
 };
   this.upsertFilter(mapped);
   console.log('SUBMITTED FILTERS:', this.submittedFilters);
@@ -274,32 +275,32 @@ buildGrouping() {
   console.log('GROUPED DATA:', this.groupedData);
 }
 
-onFilterSubmit(filter: FilterSelectionObject) {
+onFilterSubmit(filter: FilterSelectionModel) {
 
   const original = this.selectedFilters.find(f => f.id === filter.id);
   if (!original) return;
 
-const mapped: FilterSelection = {
-  id: filter.id,
-  columnName: filter.columnName,
-  type: original.type,
-  value: filter.value,
-  role: FilterRole.WHERE
-};
+  const mapped: FilterSelection = {
+    id: filter.id,
+    columnName: filter.columnName,
+    type: original.type,
+    value: filter.value,
+    role: FilterRole.WHERE
+  };
 
   const index = this.submittedFilters.findIndex(f => f.id === mapped.id);
 
   if (index > -1) {
     this.submittedFilters[index] = mapped;
   } else {
-this.submittedFilters = [
-  ...this.submittedFilters.filter(f => !(f.id === mapped.id && f.role === FilterRole.WHERE)),
-  mapped
-];  }
+    this.submittedFilters = [
+      ...this.submittedFilters.filter(f => !(f.id === mapped.id && f.role === FilterRole.WHERE)),
+      mapped
+    ];
+  }
 
   console.log('SUBMITTED FILTERS:', this.submittedFilters);
 }
-
 
 
 

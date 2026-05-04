@@ -1,333 +1,279 @@
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import{ReportDataResponse, ReportMetadata} from '../../../models/report-response.models'
-import{EnFilterType} from '../../../models/enums.models'
-import { EnFormatType } from '../../../models/enums.models';
-import { AggregationType } from '../../../models/enums.models';
+import { FormsModule } from '@angular/forms';
+
+import { ReportDataResponse } from '../../../models/report-response.models';
+import { EnFilterType } from '../../../models/enums.models';
 import { FilterDefinition } from '../../../models/filter.models';
 import { ReportDataRequest } from '../../../models/report-request.models';
 import { ReportService } from '../../../core/services/report';
-import { FormsModule } from '@angular/forms';
-export interface FilterSelectionObject {
-  id: number;
-  columnName: string;
-  value: any;
-}
+import { FilterSelectionModel, FilterValue } from '../../../models/filter-selection.model';
+
 @Component({
   selector: 'app-dynamic-filter',
-    standalone: true,
-
-  imports: [CommonModule,FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './dynamic-filter.html',
   styleUrl: './dynamic-filter.css',
 })
+export class DynamicFilter implements OnInit {
 
-export class DynamicFilter implements OnInit   {
-  
+  // ================= INPUTS =================
   @Input() filter!: FilterDefinition;
   @Input() queryId!: number;
-  
-@Output() remove = new EventEmitter<number>();
-@Output() reset = new EventEmitter<number>();
-@Output() valueChange  = new EventEmitter<FilterSelectionObject>();
-selectedSingleValue: string = 'ALL';
-isDefaultLocked = false;
-isRangeLocked = false;
-isDateLocked = false;
-  EnFilterType = EnFilterType;
-textValue: string = '';
+
+  // ================= OUTPUTS =================
+  @Output() remove = new EventEmitter<number>();
+  @Output() reset = new EventEmitter<number>();
+  @Output() valueChange = new EventEmitter<FilterSelectionModel>();
+
+  // ================= STATE =================
+  selectedSingleValue: string = 'ALL';
+  selectedMultiValues: string[] = [];
+
+  textValue: string = '';
+
+  minValue: number | null = null;
+  maxValue: number | null = null;
+
+  minDate: string | null = null;
+  maxDate: string | null = null;
+
   optionsFromApi: any[] = [];
-selectedFilterObject: FilterSelectionObject | null = null;
-minValue: number | null = null;
-maxValue: number | null = null;
+  isExpanded: boolean = true;
 
-minDate: string | null = null;
-maxDate: string | null = null;
-isExpanded: boolean = true;
-selectedMultiValues: string[] = [];
+  isDefaultLocked = false;
+  isRangeLocked = false;
+  isDateLocked = false;
+
+  selectedFilterObject: FilterSelectionModel | null = null;
+
   constructor(private reportService: ReportService) {}
-  
-  removeFilter() {
-  this.remove.emit(this.filter.id);
-}
 
-resetFilter() {
-    this.selectedSingleValue = 'ALL';
-this.selectedMultiValues = [];
-  this.textValue = '';
-
-  this.minValue = null;
-  this.maxValue = null;
-
-  this.minDate = null;
-  this.maxDate = null;
-
-  this.selectedFilterObject = null;
-    this.isDefaultLocked = false;
-  this.isRangeLocked = false;
-  this.isDateLocked = false;
-
-  this.reset.emit(this.filter.id); 
-    console.log('FILTER RESET:', this.filter.columnName);
-}
-submitDefault() {
-
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: this.textValue
-  };
-
-    console.log('SUBMIT DEFAULT:', this.selectedFilterObject);
-
-  this.isDefaultLocked = true;
-  this.isExpanded = false; 
-  this.valueChange.emit(this.selectedFilterObject); 
-}
-ngOnInit(): void {
-
-  console.log('FILTER RECEIVED:', this.filter);
-  console.log('QUERY ID:', this.queryId);
-
-  this.loadData();
-}
-get filterType(): string {
-  return String(this.filter.type);
-}
-
-isSingleSelect(): boolean {
-  return this.filterType === '6' || this.filterType === 'SINGLE_SELECT_MENU';
-}
-get filterTypeNormalized(): EnFilterType {
-  return this.filter.type as EnFilterType;
-}
-get isMultiSelect(): boolean {
-  return (
-    this.filterTypeNormalized === EnFilterType.MULTI_SELECT_MENU ||
-    this.filterTypeNormalized === EnFilterType.CHECK_BOX
-  );
-}
-isDefault(): boolean {
-  return this.filter.type === EnFilterType.DEFAULT
-    || (this.filter.type as any) === 'DEFAULT';
-}
-
-isValueRange(): boolean {
-  return this.filter.type === EnFilterType.VALUE_RANGE
-    || (this.filter.type as any) === 'VALUE_RANGE';
-}
-
-isDate(): boolean {
-  return this.filterType === '3' || this.filterType === 'DATE';
-}
-onMultiSelectChange(event: Event) {
-  const checkbox = event.target as HTMLInputElement;
-  const value = checkbox.value;
-
-  if (checkbox.checked) {
-    this.selectedMultiValues.push(value);
-  } else {
-    this.selectedMultiValues = this.selectedMultiValues.filter(v => v !== value);
+  // ================= LIFECYCLE =================
+  ngOnInit(): void {
+    this.loadData();
   }
 
-  console.log('MULTI SELECT:', this.selectedMultiValues);
-}
-submitMultiSelect() {
+  // ================= UI ACTIONS =================
+  removeFilter() {
+    this.remove.emit(this.filter.id);
+  }
 
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: this.selectedMultiValues.join(',') 
-  };
+  resetFilter() {
+    this.selectedSingleValue = 'ALL';
+    this.selectedMultiValues = [];
 
-  console.log('MULTI SUBMIT:', this.selectedFilterObject);
+    this.textValue = '';
 
-  this.isExpanded = false;
-  this.valueChange.emit(this.selectedFilterObject);
-}
-  // loadDistinctOptions(): void {
+    this.minValue = null;
+    this.maxValue = null;
 
-  //   const request: ReportDataRequest = {
-  //     filters: [],
-  //     paginationParams: {
-  //       pageNumber: 1,
-  //       pageSize: 100,
-  //       sortColumn: '',
-  //       sortDirection: ''
-  //     }
-  //   };
+    this.minDate = null;
+    this.maxDate = null;
 
-  //   console.log('CALLING API WITH:', request);
+    this.selectedFilterObject = null;
 
-  //   this.reportService.getData(this.queryId, request)
-  //     .subscribe({
-  //       next: (res: ReportDataResponse) => {
+    this.isDefaultLocked = false;
+    this.isRangeLocked = false;
+    this.isDateLocked = false;
 
-  //         console.log('API RESPONSE:', res);
-  //         console.log('TYPE:', this.filter.type);
+    this.reset.emit(this.filter.id);
+  }
 
-  //         const col = this.filter.columnName;
+  toggleExpand() {
+    this.isExpanded = !this.isExpanded;
+  }
 
-  //         this.optionsFromApi = [
-  //           ...new Set(res.rawData.map((x: any) => x[col]))
-  //         ];
+  // ================= TYPE HELPERS =================
+  get filterType(): string {
+    return String(this.filter.type);
+  }
 
-  //         console.log('DISTINCT OPTIONS:', this.optionsFromApi);
-  //       },
-  //       error: (err) => {
-  //         console.error('API ERROR:', err);
-  //       }
-  //     });
-  // }
+  get filterTypeNormalized(): EnFilterType {
+    return this.filter.type as EnFilterType;
+  }
 
-loadData(): void {
+  isSingleSelect(): boolean {
+    return this.filterType === '6' || this.filterType === 'SINGLE_SELECT_MENU';
+  }
 
-  const request: ReportDataRequest = {
-    filters: [],
-    paginationParams: {
-      pageNumber: 1,
-      pageSize: 100,
-      sortColumn: '',
-      sortDirection: ''
-    }
-  };
+  isMultiSelect(): boolean {
+    return (
+      this.filterTypeNormalized === EnFilterType.MULTI_SELECT_MENU ||
+      this.filterTypeNormalized === EnFilterType.CHECK_BOX
+    );
+  }
 
-  this.reportService.getData(this.queryId, request)
-    .subscribe({
-      next: (res: ReportDataResponse) => {
+  isDefault(): boolean {
+    return this.filter.type === EnFilterType.DEFAULT;
+  }
 
-        const col = this.filter.columnName;
-        const values = res.rawData.map((x: any) => x[col]);
+  isValueRange(): boolean {
+    return this.filter.type === EnFilterType.VALUE_RANGE;
+  }
 
-        console.log('RAW VALUES:', values);
+  isDate(): boolean {
+    return this.filterType === '3' || this.filterType === 'DATE';
+  }
 
-        // ================= SINGLE SELECT =================
-if (this.isSingleSelect() || this.isMultiSelect) {
-  const uniqueValues = Array.from(new Set(values))
-    .filter(v => v !== null && v !== undefined);  
-  this.optionsFromApi = ['ALL', ...uniqueValues];
-  console.log('OPTIONS LOADED:', this.optionsFromApi);
-}
-        // ================= VALUE RANGE =================
-        if (this.isValueRange()) {
+  // ================= API LOAD =================
+  loadData(): void {
 
-          const numbers = values
-            .map((v: any) => Number(v))
-            .filter((v: number) => !isNaN(v));
-
-          this.minValue = Math.min(...numbers);
-          this.maxValue = Math.max(...numbers);
-
-          console.log('MIN:', this.minValue);
-          console.log('MAX:', this.maxValue);
-        }
-
-        // ================= DATE =================
-        if (this.isDate()) {
-
-          const dates = values
-            .map((v: any) => new Date(v))
-            .filter((d: Date) => !isNaN(d.getTime()));
-
-          const min = new Date(Math.min(...dates.map(d => d.getTime())));
-          const max = new Date(Math.max(...dates.map(d => d.getTime())));
-
-          this.minDate = min.toISOString().split('T')[0];
-          this.maxDate = max.toISOString().split('T')[0];
-
-          console.log('MIN DATE:', this.minDate);
-          console.log('MAX DATE:', this.maxDate);
-        }
-
-      },
-      error: (err) => {
-        console.error('API ERROR:', err);
+    const request: ReportDataRequest = {
+      filters: [],
+      paginationParams: {
+        pageNumber: 1,
+        pageSize: 100,
+        sortColumn: '',
+        sortDirection: ''
       }
+    };
+
+    this.reportService.getData(this.queryId, request)
+      .subscribe({
+        next: (res: ReportDataResponse) => {
+
+          const col = this.filter.columnName;
+          const values =  res.rawData
+  .map(x => x[col])
+  .filter(v => v !== null && v !== undefined);
+          // ============ SINGLE / MULTI ============
+          if (this.isSingleSelect() || this.isMultiSelect()) {
+            const uniqueValues = Array.from(new Set(values))
+              .filter(v => v !== null && v !== undefined);
+
+            this.optionsFromApi = ['ALL', ...uniqueValues];
+          }
+
+          // ============ RANGE ============
+          if (this.isValueRange()) {
+
+            const numbers = values
+              .map((v: any) => Number(v))
+              .filter((v: number) => !isNaN(v));
+
+            this.minValue = Math.min(...numbers);
+            this.maxValue = Math.max(...numbers);
+          }
+
+          // ============ DATE ============
+          if (this.isDate()) {
+
+            const dates = values
+              .map((v: any) => new Date(v))
+              .filter((d: Date) => !isNaN(d.getTime()));
+
+            const min = new Date(Math.min(...dates.map(d => d.getTime())));
+            const max = new Date(Math.max(...dates.map(d => d.getTime())));
+
+            this.minDate = min.toISOString().split('T')[0];
+            this.maxDate = max.toISOString().split('T')[0];
+          }
+        },
+        error: (err) => console.error(err)
+      });
+  }
+
+  // ================= BUILD FILTER OBJECT =================
+  private emitText(value: string) {
+  this.emitFilter(value);
+}
+private emitSelect(value: string | null) {
+  this.emitFilter(value);
+}
+private emitMulti(values: string[]) {
+  this.emitFilter([...values]);
+}
+private emitRange() {
+  if (this.minValue == null || this.maxValue == null) return;
+
+  this.emitFilter({
+    min: this.minValue,
+    max: this.maxValue
+  });
+}
+private emitDate() {
+  if (!this.minDate || !this.maxDate) return;
+
+  this.emitFilter({
+    from: this.minDate,
+    to: this.maxDate
+  });
+}
+  private emitFilter(value: FilterValue) {
+
+    this.selectedFilterObject = {
+      id: this.filter.id,
+      columnName: this.filter.columnName,
+      type: this.filter.type as EnFilterType,
+      value: value
+    };
+
+    this.valueChange.emit(this.selectedFilterObject);
+  }
+
+  // ================= EVENTS =================
+
+  submitDefault() {
+    this.isDefaultLocked = true;
+    this.isExpanded = false;
+
+    this.emitText(this.textValue);
+  }
+
+  onSelectChange(event: Event) {
+
+    const value = (event.target as HTMLSelectElement).value;
+
+    this.selectedSingleValue = value;
+
+  if (value === 'ALL') {
+    return;
+  }
+
+  this.emitSelect(value);  }
+
+  onMultiSelectChange(event: Event) {
+
+    const checkbox = event.target as HTMLInputElement;
+    const value = checkbox.value;
+
+    if (checkbox.checked) {
+this.selectedMultiValues = [...this.selectedMultiValues, value];
+    } else {
+      this.selectedMultiValues =
+        this.selectedMultiValues.filter(v => v !== value);
+    }
+  }
+
+  submitMultiSelect() {
+    this.isExpanded = false;
+this.emitMulti(this.selectedMultiValues);  }
+
+  onTextChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+   this.emitText(value);
+  }
+
+  onRangeChange() {
+    this.emitFilter({
+      min: this.minValue ?? 0,
+    max: this.maxValue ?? 0
     });
-}
-onTextChange(event: Event) {
+  }
 
-  const value = (event.target as HTMLInputElement).value;
+ submitRange() {
 
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: value
-  };
-
-  console.log('FILTER OBJECT:', this.selectedFilterObject);
-}
-onRangeChange() {
-
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: {
-      min: this.minValue,
-      max: this.maxValue
-    }
-  };
-
-  console.log('FILTER OBJECT:', this.selectedFilterObject);
-}
-onDateChange() {
-
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: this.minDate
-  };
-
-  console.log('FILTER OBJECT:', this.selectedFilterObject);
-}
-// onSelectChange(event: Event) {
-
-//   const value = (event.target as HTMLSelectElement).value;
-
-//   this.selectedFilterObject = {
-//     id: this.filter.id,
-//     columnName: this.filter.columnName,
-//     value: value
-//   };
-
-// this.valueChange.emit(this.selectedFilterObject);
-
-// }
-onSelectChange(event: Event) {
-
-  const value = (event.target as HTMLSelectElement).value;
-
-  this.selectedSingleValue = value;
-
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: value === 'ALL' ? null : value  
-  };
-
-  this.valueChange.emit(this.selectedFilterObject);
-}
-submitRange() {
-
-  this.selectedFilterObject = {
-    id: this.filter.id,
-    columnName: this.filter.columnName,
-    value: {
-      min: this.minValue,
-      max: this.maxValue
-    }
-  };
-
-console.log('FILTER OBJECT (RANGE SUBMIT):', this.selectedFilterObject);
+  if (this.minValue == null || this.maxValue == null) return;
 
   this.isRangeLocked = true;
-  this.isExpanded = false; 
-  this.valueChange.emit(this.selectedFilterObject); 
+  this.isExpanded = false;
+
+  this.emitRange();
 }
 
-toggleExpand() {
-  this.isExpanded = !this.isExpanded;
+  onDateChange() {
+ this.emitDate();
+  }
 }
-}
-

@@ -9,7 +9,9 @@ export interface FilterSelectionModel {
 
 export type FilterValue =
   | string
+  | string[]
   | number
   | boolean
+  | null
   | { min: number | null; max: number | null }
   | { from: string | null; to: string | null };
