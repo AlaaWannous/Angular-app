@@ -83,7 +83,7 @@ submitDefault() {
 
   this.isDefaultLocked = true;
   this.isExpanded = false; 
-  this.valueChange.emit(this.selectedFilterObject); // ⭐ مهم
+  this.valueChange.emit(this.selectedFilterObject); 
 }
 ngOnInit(): void {
 
@@ -138,7 +138,7 @@ submitMultiSelect() {
   this.selectedFilterObject = {
     id: this.filter.id,
     columnName: this.filter.columnName,
-    value: this.selectedMultiValues.join(',') // مهم: فواصل
+    value: this.selectedMultiValues.join(',') 
   };
 
   console.log('MULTI SUBMIT:', this.selectedFilterObject);
@@ -303,7 +303,7 @@ onSelectChange(event: Event) {
   this.selectedFilterObject = {
     id: this.filter.id,
     columnName: this.filter.columnName,
-    value: value === 'ALL' ? null : value   // ⭐ المهم
+    value: value === 'ALL' ? null : value  
   };
 
   this.valueChange.emit(this.selectedFilterObject);
@@ -323,7 +323,7 @@ console.log('FILTER OBJECT (RANGE SUBMIT):', this.selectedFilterObject);
 
   this.isRangeLocked = true;
   this.isExpanded = false; 
-  this.valueChange.emit(this.selectedFilterObject); // ⭐ مهم
+  this.valueChange.emit(this.selectedFilterObject); 
 }
 
 toggleExpand() {

@@ -90,55 +90,7 @@ sortDirection: 'ASC' | 'DESC' = 'ASC';
 constructor(private reportService: ReportService,private cdr: ChangeDetectorRef) {
     this.tabs$ = this.reportService.getTabs();
   }
-// onSubReportClick(subReportId: number) {
 
-//   if (this.selectedSubReportId === subReportId) return;
-
-//   this.selectedSubReportId = subReportId;
-
-//    this.resetState();
-
-//   this.loading = true;
-
-//   this.reportService.getFilters(subReportId).subscribe({
-//     next: (res) => {
-//       this.filters = res;
-
-//       this.loading = false;
-//     },
-//     error: () => {
-//       this.loading = false;
-//     }
-//   });
-// }
-// onSubReportClick(subReportId: number) {
-
-//   this.selectedSubReportId = subReportId;
-
-//   this.loadingFilters = true;
-
-//   this.filters = [];
-
-//   this.cdr.markForCheck(); // 🔥 مهم جداً قبل الطلب
-
-//   this.reportService.getFilters(subReportId).subscribe({
-//     next: (res) => {
-
-//       console.log('alaaaaa:', res);
-
-//       this.filters = res ? [...res] : [];
-
-//       this.loadingFilters = false;
-
-//       this.cdr.markForCheck(); // 🔥 أهم من detectChanges
-//     },
-
-//     error: () => {
-//       this.loadingFilters = false;
-//       this.cdr.markForCheck();
-//     }
-//   });
-// }
 onSubReportClick(subReportId: number) {
 
     this.selectedSubReportId = subReportId;
@@ -421,22 +373,7 @@ exportToExcel() {
   saveAs(data, `report_${new Date().getTime()}.xlsx`);
 }
 
-// sortTable(column: string) {
 
-//   if (this.sortedColumn === column) {
-//     this.sortDirection = this.sortDirection === 'ASC' ? 'DESC' : 'ASC';
-//   } else {
-//     this.sortedColumn = column;
-//     this.sortDirection = 'ASC';
-//   }
-
-//   // نحدد sort داخل pagination
-//   this.pagination.sortColumn = column;
-//   this.pagination.sortDirection = this.sortDirection;
-
-//   // 🔥 أهم سطر: إعادة تحميل البيانات
-//   this.reloadData$.next();
-// }
 sortTable(column: string) {
 
   if (this.sortedColumn === column) {
