@@ -8,7 +8,8 @@ import { FilterDefinition } from '../../../models/filter.models';
 import { ReportDataRequest } from '../../../models/report-request.models';
 import { ReportService } from '../../../core/services/report';
 import { FilterSelectionModel, FilterValue } from '../../../models/filter-selection.model';
-
+import { ChangeDetectorRef } from '@angular/core';
+import { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
   selector: 'app-dynamic-filter',
   standalone: true,
@@ -16,7 +17,7 @@ import { FilterSelectionModel, FilterValue } from '../../../models/filter-select
   templateUrl: './dynamic-filter.html',
   styleUrl: './dynamic-filter.css',
 })
-export class DynamicFilter implements OnInit {
+export class DynamicFilter implements OnInit , OnChanges{
 
   // ================= INPUTS =================
   @Input() filter!: FilterDefinition;
@@ -48,13 +49,17 @@ export class DynamicFilter implements OnInit {
 
   selectedFilterObject: FilterSelectionModel | null = null;
 
-  constructor(private reportService: ReportService) {}
+  constructor(private reportService: ReportService, private cdr: ChangeDetectorRef) {}
 
   // ================= LIFECYCLE =================
   ngOnInit(): void {
     this.loadData();
   }
-
+ngOnChanges(changes: SimpleChanges): void {
+  if (changes['queryId'] || changes['filter']) {
+    this.loadData();
+  }
+}
   // ================= UI ACTIONS =================
   removeFilter() {
     this.remove.emit(this.filter.id);
@@ -143,7 +148,11 @@ export class DynamicFilter implements OnInit {
             const uniqueValues = Array.from(new Set(values))
               .filter(v => v !== null && v !== undefined);
 
-            this.optionsFromApi = ['ALL', ...uniqueValues];
+           setTimeout(() => {
+          this.optionsFromApi = ['ALL', ...uniqueValues];
+          this.cdr.detectChanges();
+        });
+      
           }
 
           // ============ RANGE ============
@@ -222,18 +231,35 @@ private emitDate() {
     this.emitText(this.textValue);
   }
 
-  onSelectChange(event: Event) {
+  // onSelectChange(event: Event) {
 
-    const value = (event.target as HTMLSelectElement).value;
+  //   const value = (event.target as HTMLSelectElement).value;
 
-    this.selectedSingleValue = value;
+  //   this.selectedSingleValue = value;
+
+  // if (value === 'ALL') {
+  //   return;
+  // }
+
+  // this.emitSelect(value);  }
+onSelectChange(event: Event) {
+
+  const value = (event.target as HTMLSelectElement).value;
+
+  this.selectedSingleValue = value;
 
   if (value === 'ALL') {
+    this.valueChange.emit({
+      id: this.filter.id,
+      columnName: this.filter.columnName,
+      type: this.filter.type as EnFilterType,
+      value: null   
+    });
     return;
   }
 
-  this.emitSelect(value);  }
-
+  this.emitSelect(value);
+} 
   onMultiSelectChange(event: Event) {
 
     const checkbox = event.target as HTMLInputElement;

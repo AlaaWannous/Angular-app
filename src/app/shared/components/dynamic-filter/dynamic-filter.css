@@ -4,6 +4,8 @@
   border-radius: 8px;
   margin-bottom: 10px;
   overflow: hidden;
+    position: relative;
+  overflow: visible;
 }
 
   .filter-box:hover {
@@ -148,7 +150,7 @@
     font-weight: bold;
 
     cursor: pointer;
-
+  z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;

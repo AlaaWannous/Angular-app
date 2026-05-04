@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, tap } from 'rxjs';
 import { ReportService } from '../../../core/services/report';
@@ -45,6 +45,7 @@ filters$ = this.selectedSubReportId$.pipe(
 //     this.loading = false;
 //   })
 // );
+  changeDetection!: ChangeDetectionStrategy.OnPush;
 data$ = this.reloadData$.pipe(
   switchMap(() => {
     if (!this.selectedSubReportId) return of(null);
@@ -130,19 +131,35 @@ drop(event: CdkDragDrop<FilterDefinition[]>) {
   }
 }
 
+// onFilterChange(filter: FilterSelectionModel) {
+
+//  const mapped: FilterSelection = {
+//   id: filter.id,
+//   columnName: filter.columnName,
+//    type: filter.type,
+//     value: filter.value,
+//     role: FilterRole.WHERE
+// };
+//   this.upsertFilter(mapped);
+//   console.log('SUBMITTED FILTERS:', this.submittedFilters);
+// }
 onFilterChange(filter: FilterSelectionModel) {
 
- const mapped: FilterSelection = {
-  id: filter.id,
-  columnName: filter.columnName,
-   type: filter.type,
+  if (filter.value == null) {
+    this.submittedFilters = this.submittedFilters.filter(f => f.id !== filter.id);
+    return;
+  }
+
+  const mapped: FilterSelection = {
+    id: filter.id,
+    columnName: filter.columnName,
+    type: filter.type,
     value: filter.value,
     role: FilterRole.WHERE
-};
-  this.upsertFilter(mapped);
-  console.log('SUBMITTED FILTERS:', this.submittedFilters);
-}
+  };
 
+  this.upsertFilter(mapped);
+}
 onRemoveFilter(filterId: number) {
 
   this.selectedFilters = this.selectedFilters.filter(f => f.id !== filterId);
