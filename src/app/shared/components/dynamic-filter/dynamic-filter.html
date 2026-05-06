@@ -83,8 +83,8 @@
 @if (isSingleSelect()) {
 
   <select
-    [ngModel]="selectedSingleValue"
-    (change)="onSelectChange($event)"
+    [(ngModel)]="selectedSingleValue"
+      (ngModelChange)="onSelectChange($event)"
   >
 
     @for (opt of optionsFromApi; track $index) {

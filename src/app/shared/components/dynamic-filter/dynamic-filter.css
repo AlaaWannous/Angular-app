@@ -1,4 +1,4 @@
-
+/* 
 .filter-box {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -14,7 +14,6 @@
     border-color: #cbd5e1;
   }
 
-  /* ================= LABEL ================= */
   .filter-box label {
     font-size: 14px;
     font-weight: 600;
@@ -22,14 +21,12 @@
     letter-spacing: 0.2px;
   }
 
-  /* ================= TYPE TEXT ================= */
   .filter-box small {
     font-size: 11px;
     color: #94a3b8;
     margin-top: -6px;
   }
 
-  /* ================= INPUTS ================= */
   .filter-box input,
   .filter-box select {
     width: 100%;
@@ -47,7 +44,6 @@
     outline: none;
   }
 
-  /* focus effect */
   .filter-box input:focus,
   .filter-box select:focus {
     border-color: #3b82f6;
@@ -55,7 +51,6 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 
-  /* ================= RANGE INPUTS ================= */
   .filter-box input[type="number"] {
     appearance: textfield;
   }
@@ -66,22 +61,18 @@
     margin: 0;
   }
 
-  /* ================= DATE INPUT ================= */
   .filter-box input[type="date"] {
     cursor: pointer;
   }
 
-  /* ================= SELECT ================= */
   .filter-box select {
     cursor: pointer;
   }
 
-  /* ================= LOADING OPTION ================= */
   .filter-box option {
     font-size: 13px;
   }
 
-  /* ================= RESPONSIVE ================= */
   @media (max-width: 768px) {
     .filter-box {
       padding: 12px;
@@ -112,19 +103,16 @@
     box-shadow: 0 6px 15px rgba(0, 201, 167, 0.2);
   }
 
-  /* hover effect */
   .submit-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 201, 167, 0.3);
   }
 
-  /* click effect */
   .submit-btn:active {
     transform: translateY(0);
     box-shadow: 0 4px 10px rgba(0, 201, 167, 0.2);
   }
 
-  /* disabled state */
   .submit-btn:disabled {
     background: #cfd8dc;
     color: #777;
@@ -196,7 +184,6 @@
     color: #666;
   }
 
-  /* Smooth collapse */
  .filter-content {
   padding: 10px;
   transition: all 0.2s ease;
@@ -208,4 +195,97 @@
 }
 .arrow {
   font-size: 12px;
+} */
+* {
+  box-sizing: border-box;
+}
+.filter-box {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 14px;
+  cursor: pointer;
+  background: #f9fafb;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+}
+
+.filter-header:hover {
+  background: #f3f4f6;
+}
+.filter-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transition: all 0.2s ease;
+}
+
+.collapsed {
+  display: none;
+}
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.reset-btn {
+  background: #e0f2fe;
+  color: #00b39b;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+input, select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+input:focus, select:focus {
+  border-color: #00b39b;
+}
+.submit-btn {
+  background: #00b39b;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.submit-btn:hover {
+  background: #00b39b;
+}
+
+.submit-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }

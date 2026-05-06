@@ -20,7 +20,7 @@
 
                   <div
                     class="sub-tab"
-                  (click)="onSubReportClick(sub.id)"
+                  (click)="onSubReportClick(sub.id, sub.name)"
                   >
                     {{ sub.name }}
                   </div>
@@ -173,17 +173,128 @@
       </div>
       
 
-      <div class="send-wrapper">
-        <button class="send-btn" (click)="sendFilters()">
-          Get Data
-        </button>
-              <button class="send-btn export-btn" (click)="exportToExcel()">
-      Export to Excel
-    </button>
-      </div>
+<div class="send-wrapper">
+
+  <button class="send-btn get-btn" (click)="sendFilters()">
+    Get Data
+  </button>
+
+  <button class="icon-btn export-btn" (click)="exportToExcel()">
+    ⬇
+
+    <span class="tooltip">Export to Excel</span>
+  </button>
+
+</div>
       
     <!-- ================= BOX 5 (ROW DATA) ================= -->
-    <div class="box rowdata">
+  <div class="box rowdata">
+
+ <h3>
+  {{ selectedSubReportName  }}
+</h3>
+
+  <div class="row-item-container">
+
+    @if (data$ | async; as data) {
+@if (currentData.length === 0) {
+  <div class="empty">No data</div>
+} @else {
+
+  <!-- HEADER -->
+  <div class="table-header">
+    <div class="header-row">
+
+      @for (col of currentColumns; track col) {
+        <div class="th" (click)="sortTable(col)">
+          {{ col }}
+
+          @if (sortedColumn === col) {
+            <span class="sort">
+              {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+            </span>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ROWS -->
+  <div class="table-body">
+
+    @for (row of currentData; track $index) {
+      <div class="table-row">
+
+        @for (col of currentColumns; track col) {
+          <div class="td">
+            {{ row[col] }}
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+
+}
+      <!-- @if (!data?.rawData || data.rawData.length === 0) {
+        <div class="empty">No data</div>
+      }
+
+      @else {
+
+        <div class="table-header">
+
+          <div class="header-row">
+
+            @for (item of getRowEntries(data.rawData[0]); track $index) {
+
+              <div class="th" (click)="sortTable(item[0])">
+                {{ item[0] }}
+
+                @if (sortedColumn === item[0]) {
+                  <span class="sort">
+                    {{ sortDirection === 'ASC' ? '▲' : '▼' }}
+                  </span>
+                }
+
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+        <div class="table-body">
+
+          @for (row of data.rawData; track $index) {
+
+            <div class="table-row">
+
+              @for (item of getRowEntries(row); track $index) {
+
+                <div class="td">
+                  {{ item[1] }}
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+      } -->
+
+    }
+
+  </div>
+
+</div>
+    <!-- <div class="box rowdata">
 
       <h3>Row Data</h3>
 
@@ -197,7 +308,6 @@
 
           @else {
 
-            <!-- HEADER -->
             <div class="table-header">
               <div class="table-row">
           @for (item of getRowEntries(data.rawData[0]); track $index) {
@@ -216,7 +326,6 @@
               </div>
             </div>
 
-            <!-- ROWS -->
             @for (row of data.rawData; track $index) {
               <div class="table-row">
                 @for (item of getRowEntries(row); track $index) {
@@ -233,7 +342,7 @@
 
       </div>
 
-    </div>
+    </div> -->
     </div>
 
 

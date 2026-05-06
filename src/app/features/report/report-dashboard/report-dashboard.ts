@@ -27,7 +27,7 @@ import { FilterSelectionModel } from '../../../models/filter-selection.model';
 export class ReportDashboard {
 private selectedSubReportId$ = new BehaviorSubject<number | null>(null);
 private reloadData$ = new BehaviorSubject<void>(undefined);
-
+selectedSubReportName: string = '';
 tabs$: Observable<ReportDto[]>;
 filters$ = this.selectedSubReportId$.pipe(
   switchMap(id =>
@@ -46,26 +46,76 @@ filters$ = this.selectedSubReportId$.pipe(
 //   })
 // );
   changeDetection!: ChangeDetectionStrategy.OnPush;
+// data$ = this.reloadData$.pipe(
+//   switchMap(() => {
+//     if (!this.selectedSubReportId) return of(null);
+
+//     const payload: ReportDataRequest = {
+//     filters: [...this.submittedFilters],
+//     paginationParams: { ...this.pagination }
+//   };
+//     return this.reportService.getData(this.selectedSubReportId, payload);
+//   }),
+//   tap((res: any) => {
+
+//     this.loading = false;
+
+//     if (res?.rawData) {
+// this.currentData = [...res.rawData];
+   
+//       this.currentColumns = Object.keys(res.rawData[0] || {});
+//     }
+//   })
+// );
+// data$ = this.reloadData$.pipe(
+//   switchMap(() => {
+//     if (!this.selectedSubReportId) return of(null);
+
+//     const payload: ReportDataRequest = {
+//       filters: [...this.submittedFilters],
+//       paginationParams: { ...this.pagination }
+//     };
+
+//     return this.reportService.getData(this.selectedSubReportId, payload);
+//   }),
+//   tap((res: any) => {
+
+//     this.loading = false;
+
+//     if (res?.rawData) {
+//       this.currentData = [...res.rawData];
+//       this.currentColumns = Object.keys(res.rawData[0] || {});
+//     }
+
+//   })
+// );
 data$ = this.reloadData$.pipe(
   switchMap(() => {
-    if (!this.selectedSubReportId) return of(null);
 
-   // const payload = this.buildRequest();
+    if (!this.selectedSubReportId) {
+      return of({ rawData: [] }); // مهم جداً
+    }
+
     const payload: ReportDataRequest = {
-    filters: [...this.submittedFilters],
-    paginationParams: { ...this.pagination }
-  };
+      filters: [...this.submittedFilters],
+      paginationParams: { ...this.pagination }
+    };
+
     return this.reportService.getData(this.selectedSubReportId, payload);
+
   }),
   tap((res: any) => {
 
     this.loading = false;
 
     if (res?.rawData) {
-this.currentData = [...res.rawData];
-   
+      this.currentData = [...res.rawData];
       this.currentColumns = Object.keys(res.rawData[0] || {});
+    } else {
+      this.currentData = [];
+      this.currentColumns = [];
     }
+
   })
 );
 loadingFilters = false;
@@ -93,10 +143,13 @@ constructor(private reportService: ReportService,private cdr: ChangeDetectorRef)
     this.tabs$ = this.reportService.getTabs();
   }
 
-onSubReportClick(subReportId: number) {
+onSubReportClick(subReportId: number, subReportName: string) {
 
     this.selectedSubReportId = subReportId;
-
+  this.selectedSubReportName =subReportName;
+  // 🔥 امسح البيانات فوراً من الشاشة
+  this.currentData = [];
+  this.currentColumns = [];
   this.resetState();
 
   this.loadingFilters = true;
@@ -356,11 +409,25 @@ private refreshData() {
 
 private resetState() {
   //this.filters = [];
-  this.selectedFilters = [];
+ this.selectedFilters = [];
   this.submittedFilters = [];
   this.groupingFields = [];
+
   this.rowData = [];
-  this.groupedData = [];  
+  this.groupedData = [];
+
+  this.currentData = [];
+  this.currentColumns = [];
+
+  this.sortedColumn = '';
+  this.sortDirection = 'ASC';
+
+  this.pagination = {
+    pageNumber: 1,
+    pageSize: 10,
+    sortColumn: '',
+    sortDirection: ''
+  };
 }
 
 exportToExcel() {

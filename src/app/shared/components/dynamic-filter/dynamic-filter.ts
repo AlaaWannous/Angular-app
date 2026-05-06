@@ -53,6 +53,8 @@ export class DynamicFilter implements OnInit , OnChanges{
 
   // ================= LIFECYCLE =================
   ngOnInit(): void {
+      console.log('FILTER TYPE RAW:', this.filter.type);
+  console.log('FILTER TYPE NORMALIZED:', this.type);
     this.loadData();
   }
 ngOnChanges(changes: SimpleChanges): void {
@@ -66,7 +68,7 @@ ngOnChanges(changes: SimpleChanges): void {
   }
 
   resetFilter() {
-    this.selectedSingleValue = 'ALL';
+      this.selectedSingleValue = 'ALL';
     this.selectedMultiValues = [];
 
     this.textValue = '';
@@ -98,30 +100,35 @@ ngOnChanges(changes: SimpleChanges): void {
   get filterTypeNormalized(): EnFilterType {
     return this.filter.type as EnFilterType;
   }
+private get type(): EnFilterType {
 
-  isSingleSelect(): boolean {
-    return this.filterType === '6' || this.filterType === 'SINGLE_SELECT_MENU';
+  if (typeof this.filter.type === 'number') {
+    return this.filter.type;
   }
 
-  isMultiSelect(): boolean {
-    return (
-      this.filterTypeNormalized === EnFilterType.MULTI_SELECT_MENU ||
-      this.filterTypeNormalized === EnFilterType.CHECK_BOX
-    );
-  }
+  return EnFilterType[this.filter.type as keyof typeof EnFilterType];
+}
+ isSingleSelect(): boolean {
+  return this.type === EnFilterType.SINGLE_SELECT_MENU;
+}
 
-  isDefault(): boolean {
-    return this.filter.type === EnFilterType.DEFAULT;
-  }
 
-  isValueRange(): boolean {
-    return this.filter.type === EnFilterType.VALUE_RANGE;
-  }
+isMultiSelect(): boolean {
+  return this.type === EnFilterType.MULTI_SELECT_MENU;
+}
 
-  isDate(): boolean {
-    return this.filterType === '3' || this.filterType === 'DATE';
-  }
+ isDefault(): boolean {
+  return this.type === EnFilterType.DEFAULT;
+}
 
+isValueRange(): boolean {
+  return this.type === EnFilterType.VALUE_RANGE;
+}
+
+ 
+isDate(): boolean {
+  return this.type === EnFilterType.DATE;
+}
   // ================= API LOAD =================
   loadData(): void {
 
@@ -144,17 +151,22 @@ ngOnChanges(changes: SimpleChanges): void {
   .map(x => x[col])
   .filter(v => v !== null && v !== undefined);
           // ============ SINGLE / MULTI ============
-          if (this.isSingleSelect() || this.isMultiSelect()) {
-            const uniqueValues = Array.from(new Set(values))
-              .filter(v => v !== null && v !== undefined);
+const isSelectable =
+  this.type === EnFilterType.SINGLE_SELECT_MENU ||
+  this.type === EnFilterType.MULTI_SELECT_MENU ||
+  this.type === EnFilterType.CHECK_BOX;
 
-           setTimeout(() => {
-          this.optionsFromApi = ['ALL', ...uniqueValues];
-          this.cdr.detectChanges();
-        });
-      
-          }
+if (isSelectable) {
 
+  const uniqueValues = Array.from(new Set(values))
+    .filter(v => v !== null && v !== undefined);
+
+  this.optionsFromApi = this.isSingleSelect()
+    ? ['ALL', ...uniqueValues]
+    : uniqueValues;
+
+  this.selectedSingleValue = 'ALL';
+}
           // ============ RANGE ============
           if (this.isValueRange()) {
 
@@ -242,23 +254,12 @@ private emitDate() {
   // }
 
   // this.emitSelect(value);  }
-onSelectChange(event: Event) {
-
-  const value = (event.target as HTMLSelectElement).value;
-
+onSelectChange(value: string) {
   this.selectedSingleValue = value;
 
-  if (value === 'ALL') {
-    this.valueChange.emit({
-      id: this.filter.id,
-      columnName: this.filter.columnName,
-      type: this.filter.type as EnFilterType,
-      value: null   
-    });
-    return;
-  }
+  const finalValue = value === 'ALL' ? null : value;
 
-  this.emitSelect(value);
+  this.emitSelect(finalValue);
 } 
   onMultiSelectChange(event: Event) {
 
